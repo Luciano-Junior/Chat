@@ -1,7 +1,6 @@
 const express = require('express');
 const path = require('path');
 
-
 const app = express();
 
 const server = require('http').createServer(app);
@@ -16,4 +15,19 @@ app.use('/', (req, res) => {
     res.render('index.html');
 });
 
-app.listen(3000);
+let messages = [];
+
+io.on('connection', socket => {
+    console.log(`Socket conectado: ${socket.id}`);
+
+    socket.emit('previousMessage', messages);
+
+    socket.on('sendMessage', data =>{
+        messages.push(data);
+        // socket.emit //envia a mensagem para esse socket
+        // socket.on //ouvir a mensagem
+        socket.broadcast.emit('receiveMessage', data);
+    })
+});
+
+server.listen(3000);
